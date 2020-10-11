@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: polaris-task
+spec:
+  params:
+    - name: pathToManifests
+      type: string
+      description: A comma-separated list of directories to recursively search for YAML documents
+      default: $(resources.inputs.manifest-source.path)
+  resources:
+    inputs:
+      - name: manifest-source
+        type: git
+  steps:
+    - name: audit
+      image: quay.io/fairwinds/polaris:1.2
+      command:
+        - /usr/local/bin/polaris
+      args:
+        - audit
+        - --audit-path
+        - $(params.pathToManifests)
+        - --format
+        - yaml
+        - --set-exit-code-on-danger

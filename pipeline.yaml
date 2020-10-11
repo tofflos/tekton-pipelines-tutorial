@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: tutorial-pipeline
+spec:
+  resources:
+    - name: manifest-source
+      type: git
+  tasks:
+    - name: validate
+      taskRef:
+        name: kubeval-task
+      params:
+        - name: pathToManifests
+          value: /workspace/manifest-source
+      resources:
+        inputs:
+          - name: manifest-source
+            resource: manifest-source
+    - name: lint
+      taskRef:
+        name: polaris-task
+      runAfter:
+        - validate
+      resources:
+        inputs:
+          - name: manifest-source
+            resource: manifest-source
+      params:
+        - name: pathToManifests
+          value: /workspace/manifest-source
+    - name: deploy
+      taskRef:
+        name: kubectl-task
+      runAfter:
+        - lint
+      resources:
+        inputs:
+          - name: manifest-source
+            resource: manifest-source
+      params:
+        - name: pathToManifests
+          value: /workspace/manifest-source

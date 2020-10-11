@@ -1,0 +1,16 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: polaris-task-run
+spec:
+#  serviceAccountName: tutorial-service
+  taskRef:
+    name: polaris-task
+  params:
+    - name: pathToManifests
+      value: $(resources.inputs.manifest-source.path)
+  resources:
+    inputs:
+      - name: manifest-source
+        resourceRef:
+          name: manifest-source

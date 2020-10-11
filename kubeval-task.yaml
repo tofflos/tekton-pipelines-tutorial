@@ -1,0 +1,27 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kubeval-task
+spec:
+  params:
+    - name: pathToManifests
+      type: string
+      description: A comma-separated list of directories to recursively search for YAML documents
+      default: $(resources.inputs.manifest-source.path)
+  resources:
+    inputs:
+      - name: manifest-source
+        type: git
+  steps:
+    - name: validate
+      image: garethr/kubeval:latest
+      command:
+        - /usr/local/bin/kubeval
+      args:
+        - --directories
+        - $(params.pathToManifests)
+        - --ignore-missing-schemas
+        - --openshift
+        - --output
+        - json
+        - --strict

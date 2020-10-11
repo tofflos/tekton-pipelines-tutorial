@@ -1,0 +1,23 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kubectl-task
+spec:
+  params:
+    - name: pathToManifests
+      type: string
+      description: A comma-separated list of directories to recursively search for YAML documents
+      default: $(resources.inputs.manifest-source.path)
+  resources:
+    inputs:
+      - name: manifest-source
+        type: git
+  steps:
+    - name: apply
+      image: lachlanevenson/k8s-kubectl:v1.19.2
+      command:
+        - /usr/local/bin/kubectl
+      args:
+        - apply
+        - -f
+        - $(params.pathToManifests)
